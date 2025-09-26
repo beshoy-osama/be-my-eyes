@@ -1,4 +1,3 @@
-cat > README.md << 'EOF'
 # 🌟 Be-My-Eyes: Object Detection API
 
 A powerful object detection system designed to assist visually impaired users with detailed image descriptions.
