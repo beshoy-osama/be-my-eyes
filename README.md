@@ -36,26 +36,6 @@ $ cp .env.example .env
 
 Set your environment variables in the `.env` file. Like `OPENROUTER_API_KEY` value.
 
-## Run Docker Compose Services
-
-```bash
-$ cd docker
-$ cp .env.example .env
-```
-
-- update `.env` with your credentials
-
-
-
-```bash
-$ cd docker
-$ sudo docker compose up -d
-```
-
-## Access Services
-
-- **FastAPI**: http://localhost:8000
-
 ## Run the FastAPI server (Development Mode)
 
 ```bash
