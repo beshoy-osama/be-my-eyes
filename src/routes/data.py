@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, UploadFile, status
 from fastapi.responses import JSONResponse
 
-from controllers import DataController
+from services import DataController
 from models.enums import ResponseEnums
 from helpers import Settings, get_settings
 
