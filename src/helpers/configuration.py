@@ -16,8 +16,6 @@ class Settings(BaseSettings):
 
 
     DEFAULT_CONFIDENCE: float
-    MIN_CONFIDENCE: float 
-    MAX_CONFIDENCE: float
 
 
     OPENROUTER_API_KEY: SecretStr = SecretStr("")
@@ -25,6 +23,8 @@ class Settings(BaseSettings):
     VLM_API_URL: str
 
     YOLO_MODEL_NAME: str
+
+    device: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

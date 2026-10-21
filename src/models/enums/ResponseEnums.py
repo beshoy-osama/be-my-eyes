@@ -1,6 +1,6 @@
 from enum import Enum
 
-class ResponseSignal(Enum):
+class ResponseEnums(Enum):
     
     HEALTH_CHECK_GOOD = "HEALTH_CHECK_GOOD"
     HEALTH_CHECK_BAD = "HEALTH_CHECK_BAD"

@@ -1,6 +1,6 @@
 from .BaseController import BaseController
 from fastapi import UploadFile
-from models.enums import ResponseSignal
+from models.enums import ResponseEnums
 import re
 import os
 
@@ -39,12 +39,12 @@ class DataController(BaseController):
         kind = filetype.guess(header)
 
         if kind is None or f".{kind.extension}" not in self.app_settings.FILE_ALLOWED_TYPES:
-            return False, ResponseSignal.FILE_TYPE_NOT_SUPPORTED.value
+            return False, ResponseEnums.FILE_TYPE_NOT_SUPPORTED.value
 
         if file_size > (self.app_settings.FILE_MAX_SIZE * self.size_scale):
-            return False, ResponseSignal.FILE_SIZE_EXCEEDED.value
+            return False, ResponseEnums.FILE_SIZE_EXCEEDED.value
 
-        return True, ResponseSignal.FILE_UPLOAD_SUCCESS.value
+        return True, ResponseEnums.FILE_UPLOAD_SUCCESS.value
 
     def generate_unique_file_path(self, file_name: str, project_id: str):
 
