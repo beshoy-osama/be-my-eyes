@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from models.enums import ResponseSignal
+from models.enums import ResponseEnums
 from helpers import Settings, get_settings
 
 
@@ -16,7 +16,7 @@ async def welcome(app_settings: Settings = Depends(get_settings)):
 
 
     return {
-        "message":      ResponseSignal.HEALTH_CHECK_GOOD.value,
-        "app_name": app_name,
-        "app_version": app_version,
+        "message":      ResponseEnums.HEALTH_CHECK_GOOD.value,
+        "app_name":     app_name,
+        "app_version":  app_version,
         }

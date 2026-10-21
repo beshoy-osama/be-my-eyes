@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, status
 from fastapi.responses import JSONResponse
 
 from controllers import DataController
-from models.enums import ResponseSignal
+from models.enums import ResponseEnums
 from helpers import Settings, get_settings
 
 
@@ -35,7 +35,7 @@ async def upload_file(project_id: str, file: UploadFile,
         if not file.filename:
                 return JSONResponse(
                         content={
-                                'signal': ResponseSignal.FILE_UPLOAD_FAILED.value
+                                'signal': ResponseEnums.FILE_UPLOAD_FAILED.value
                                 },
                         status_code=status.HTTP_400_BAD_REQUEST)
 
@@ -51,7 +51,7 @@ async def upload_file(project_id: str, file: UploadFile,
 
                 return JSONResponse(
                                 content={
-                                        'response signal': ResponseSignal.FILE_UPLOAD_FAILED.value
+                                        'response signal': ResponseEnums.FILE_UPLOAD_FAILED.value
                                                 },
                                                 status_code=status.HTTP_400_BAD_REQUEST
                                                 )
@@ -59,7 +59,7 @@ async def upload_file(project_id: str, file: UploadFile,
 
         return JSONResponse(
                 content={
-                        'response signal': ResponseSignal.FILE_UPLOAD_SUCCESS.value,
+                        'response signal': ResponseEnums.FILE_UPLOAD_SUCCESS.value,
                         'file_id': file_id,
                         'file_path': file_path
                                 }

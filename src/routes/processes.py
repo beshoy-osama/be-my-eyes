@@ -7,13 +7,13 @@ from fastapi import APIRouter, Request, status
 from fastapi.responses import FileResponse, JSONResponse
 
 from controllers import DataController, TextToSpeechController, VLMController, YOLOController
-from models.enums import ResponseSignal
-from routes.schemes import ProcessRequest
-from schemas import (
-    DetectionCaptionResponse,
-    DetectionCaptionSpeechResponse,
-    DetectionResponse,
-)
+from models.enums import ResponseEnums
+from routes.schemes import DetectionSchemas, DetectionRequest
+# from schemas import (
+#     DetectionCaptionResponse,
+#     DetectionCaptionSpeechResponse,
+#     DetectionResponse,
+# )
 
 processes_router = APIRouter(
     prefix="/api/v1/processes",
@@ -23,90 +23,57 @@ processes_router = APIRouter(
 logger = logging.getLogger(__name__)
 
 
-# ---------------- Helper Functions ---------------- #
-
-def _resolve_image_path(project_id: str, file_id: str) -> tuple[str | None, JSONResponse | None]:
-    """Resolve and validate the uploaded file path."""
-    image_path = DataController().get_file_path(file_id=file_id, project_id=project_id)
-    if image_path is None:
-        return None, JSONResponse(
-            content={
-                "signal": ResponseSignal.FILE_NOT_FOUND.value,
-                "error": f"File '{file_id}' was not found in project '{project_id}'",
-            },
-            status_code=status.HTTP_404_NOT_FOUND,
-        )
-    return image_path, None
-
-
-async def _run_detection(
-    yolo_controller: YOLOController,
-    image_path: str,
-    confidence: float | None,
-) -> tuple[Any | None, JSONResponse | None]:
-    """Execute YOLO prediction with handled exceptions."""
-    try:
-        detection_result = await asyncio.to_thread(
-            yolo_controller.predict, image_path, confidence
-        )
-        return detection_result, None
-    except ValueError as e:
-        return None, JSONResponse(
-            content={"signal": ResponseSignal.INVALID_CONFIDENCE.value, "error": str(e)},
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-    except Exception as e:
-        logger.error(f"Detection failed: {e}", exc_info=True)
-        return None, JSONResponse(
-            content={"signal": ResponseSignal.DETECTION_FAILED.value, "error": str(e)},
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-
-
-async def _run_caption(
-    vlm_controller: VLMController,
-    image_path: str,
-    objects: Any,
-) -> tuple[Any | None, JSONResponse | None]:
-    """Execute VLM captioning with handled exceptions."""
-    try:
-        caption_result = await vlm_controller.generate_caption(image_path, objects)
-        return caption_result, None
-    except Exception as e:
-        logger.error(f"VLM failed: {e}", exc_info=True)
-        return None, JSONResponse(
-            content={"signal": ResponseSignal.CAPTION_FAILED.value, "error": str(e)},
-            status_code=status.HTTP_502_BAD_GATEWAY,
-        )
-
-
-# ---------------- Endpoints ---------------- #
 
 # Stage 1: detection
-@processes_router.post("/detection/{project_id}", response_model=DetectionResponse)
-async def detection(request: Request, project_id: str, process_request: ProcessRequest):
+@processes_router.post("/detection/{project_id}")
+async def detection(request: Request, project_id: str, detection_request: DetectionRequest):
     start_time = time.perf_counter()
 
     yolo_controller: YOLOController = request.app.state.yolo_controller
 
-    # Resolve image path
-    image_path, error_response = _resolve_image_path(project_id, process_request.file_id)
-    if error_response:
-        return error_response
+    image_path = DataController().get_file_path(file_id=detection_request.file_id, project_id=project_id)
+    logger.info(f"Resolved image path: {image_path}")
 
-    # Run detection
-    detection_result, error_response = await _run_detection(
-        yolo_controller, image_path, process_request.confidence
-    )
-    if error_response:
-        return error_response
+    if not image_path:
+        error_msg = f"File '{detection_request.file_id}' was not found in project '{project_id}'"
+        logger.warning(error_msg)
+        return JSONResponse(
+            content={"signal": ResponseEnums.FILE_NOT_FOUND.value, "error": error_msg},
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
 
-    return DetectionResponse(
-        signal=ResponseSignal.DETECTION_SUCCESS.value,
-        project_id=project_id,
-        file_id=process_request.file_id,
-        detection=detection_result,
-        processing_time=time.perf_counter() - start_time,
+    try:
+        detection_result = await asyncio.to_thread(
+            yolo_controller.predict, image_path, detection_request.confidence
+        )
+    except FileNotFoundError as e:
+        logger.warning(f"Image file not found during detection: {e}")
+        return JSONResponse(
+            content={"signal": ResponseEnums.FILE_NOT_FOUND.value, "error": str(e)},
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+    except ValueError as e:
+        logger.warning(f"Validation error during detection: {e}")
+        return JSONResponse(
+            content={"signal": ResponseEnums.DETECTION_FAILED.value, "error": str(e)},
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    except Exception as e:
+        logger.error(f"Detection failed: {e}", exc_info=True)
+        return JSONResponse(
+            content={"signal": ResponseEnums.DETECTION_FAILED.value, "error": str(e)},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "signal": ResponseEnums.DETECTION_SUCCESS.value,
+            "project_id": project_id,
+            "file_id": detection_request.file_id,
+            "detection": detection_result.model_dump(mode="json"),
+            "processing_time": time.perf_counter() - start_time,
+        },
     )
 
 
@@ -137,7 +104,7 @@ async def detection(request: Request, project_id: str, process_request: ProcessR
 #         return error_response
 
 #     return DetectionCaptionResponse(
-#         signal=ResponseSignal.CAPTION_SUCCESS.value,
+#         signal=ResponseEnums.CAPTION_SUCCESS.value,
 #         project_id=project_id,
 #         file_id=process_request.file_id,
 #         detection=detection_result,
@@ -183,14 +150,14 @@ async def detection(request: Request, project_id: str, process_request: ProcessR
 #     except Exception as e:
 #         logger.error(f"TTS failed: {e}", exc_info=True)
 #         return JSONResponse(
-#             content={"signal": ResponseSignal.SPEECH_FAILED.value, "error": str(e)},
+#             content={"signal": ResponseEnums.SPEECH_FAILED.value, "error": str(e)},
 #             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
 #         )
 
 #     speech_result.url = str(request.url_for("get_speech", file_name=speech_result.file_name))
 
 #     return DetectionCaptionSpeechResponse(
-#         signal=ResponseSignal.SPEECH_SUCCESS.value,
+#         signal=ResponseEnums.SPEECH_SUCCESS.value,
 #         project_id=project_id,
 #         file_id=process_request.file_id,
 #         detection=detection_result,
@@ -209,7 +176,7 @@ async def detection(request: Request, project_id: str, process_request: ProcessR
 #     if file_path is None:
 #         return JSONResponse(
 #             content={
-#                 "signal": ResponseSignal.FILE_NOT_FOUND.value,
+#                 "signal": ResponseEnums.FILE_NOT_FOUND.value,
 #                 "error": f"Speech file '{file_name}' was not found",
 #             },
 #             status_code=status.HTTP_404_NOT_FOUND,
