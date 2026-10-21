@@ -1,4 +1,2 @@
-from .UploadRequest import UploadRequest
-from .ProcessRequest import ProcessRequest
-
-__all__ = ["ProcessRequest", "UploadRequest"]
+from .UploadImage import UploadImage
+from .DetectionSchemas import DetectionRequest, DetectedObject, DetectionResult, PositionEnums
