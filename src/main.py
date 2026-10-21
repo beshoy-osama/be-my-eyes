@@ -1,4 +1,4 @@
-import time
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -6,6 +6,13 @@ from fastapi import FastAPI
 from controllers import TextToSpeechController, VLMController, YOLOController
 from helpers import get_settings
 from routes import data_router, health_router, processes_router
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="[%(asctime)s] %(levelname)s [%(name)s]: %(message)s",
+    datefmt="%H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -27,11 +34,11 @@ async def lifespan(app: FastAPI):
     # tts_controller = TextToSpeechController()
     # app.state.tts_controller = tts_controller
 
-    print(f"[{time.strftime('%X')}] Application startup complete. Ready to serve requests!")
+    logger.info("Application startup complete. Ready to serve requests!")
 
     yield
 
-    print(f"[{time.strftime('%X')}] Application shut down cleanly")
+    logger.info("Application shut down cleanly")
 
 
 app = FastAPI(lifespan=lifespan)
