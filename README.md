@@ -1,4 +1,4 @@
-# 🌟 Be-My-Eyes: Assistive Vision & Scene Description API
+# 👀 Be-My-Eyes: Assistive Vision & Scene Description API
 
 **Be-My-Eyes** is an end-to-end assistive AI backend built with **FastAPI** to help visually impaired users understand their surroundings. It combines real-time object detection (**YOLO**), contextual scene description via Vision-Language Models (**OpenRouter VLM**), and natural speech synthesis (**gTTS**) into a multi-stage processing pipeline.
 
@@ -89,7 +89,7 @@ be-my-eyes/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/be-my-eyes.git
+git clone https://github.com/beshoy-osama/be-my-eyes.git
 cd be-my-eyes/src
 ```
 
