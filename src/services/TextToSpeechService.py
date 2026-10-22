@@ -5,7 +5,7 @@ from typing import Any
 
 from gtts import gTTS
 
-from schemas.tts_schemas import SpeechResult
+from schemas.TTSSchemas import SpeechResult
 from .BaseController import BaseController
 
 logger = logging.getLogger(__name__)
