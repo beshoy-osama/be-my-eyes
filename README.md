@@ -182,7 +182,7 @@ Interactive API documentation will be available at:
       "detection": { ... },
       "caption": {
         "caption": "A tabby cat is resting in the center of the frame...",
-        "model_name": "google/gemma-3-27b-it:free",
+        "model_name": "google/gemma-3-27b-it",
         "processing_time": 2.84
       },
       "speech": {
