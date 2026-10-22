@@ -1,0 +1,7 @@
+$kind: http-request
+url: "{{base_url}}/api/v1/processes/speech/2/nzk7aqt7jf5z_cat.jpg"
+method: GET
+body:
+  type: json
+  content: "{\r\n    \r\n}"
+order: 4000

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{base_url}}/api/v1/processes/detection-vlm-tts/2"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"file_id\": \"nzk7aqt7jf5z_cat.jpg\",\r
+
+    \    \"use_cache\": true\r
+
+    }"
+order: 3000

@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{base_url}}/api/v1/data/upload/2"
+method: POST
+body:
+  type: formdata
+  content:
+    - type: file
+      key: file
+      src:
+        - postman-cloud:///1f095960-055a-4050-9574-2eb7708eaedc
+      description: ""
+      disabled: false
+order: 1000

@@ -1,0 +1,11 @@
+$kind: http-request
+url: "{{base_url}}/api/v1/processes/detection/2"
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \    \"file_id\": \"nzk7aqt7jf5z_cat.jpg\"\r
+
+    }"
+order: 1000
