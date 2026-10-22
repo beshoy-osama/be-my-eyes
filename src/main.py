@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from services import YOLOService, VLMService, TextToSpeechController
+from services import YOLOService, VLMService, TextToSpeechService
 from helpers import get_settings
 from routes import data_router, health_router, processes_router
 
@@ -20,13 +20,13 @@ async def lifespan(app: FastAPI):
     """Build application dependencies once before serving requests."""
     settings = get_settings()
 
-    # 1. Initialize YOLO Controller
+    # 1. Initialize YOLO client
     yolo_client = YOLOService()
     yolo_client.set_model_path(settings.YOLO_MODEL_NAME)
 
     app.state.yolo_controller = yolo_client
 
-    # 2. Initialize VLM Controller
+    # 2. Initialize VLM client
     vlm_client = VLMService()
     await vlm_client.set_model(
         model_name=settings.VLM_MODEL_NAME,
@@ -36,9 +36,9 @@ async def lifespan(app: FastAPI):
     
     app.state.vlm_controller = vlm_client
 
-    # # 3. Initialize TTS Controller
-    # tts_controller = TextToSpeechController()
-    # app.state.tts_controller = tts_controller
+    # 3. Initialize TTS client
+    tts_client = TextToSpeechService()
+    app.state.tts_controller = tts_client
 
     logger.info("Application startup complete. Ready to serve requests!")
 
