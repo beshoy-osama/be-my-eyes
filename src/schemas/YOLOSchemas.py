@@ -12,6 +12,15 @@ class DetectionRequest(BaseModel):
         le=1.0,
         description="Detection confidence threshold (defaults to DEFAULT_CONFIDENCE)",
     )
+    language: Optional[str] = Field(
+        default="en",
+        min_length=2,
+        description="Language code for text-to-speech synthesis (defaults to 'en')",
+    )
+    use_cache: bool = Field(
+        default=True,
+        description="Whether to return cached pipeline results if available (defaults to True)",
+    )
 
 
 class DetectedObject(BaseModel):
