@@ -1,11 +1,14 @@
 fastapi==0.116.1
 uvicorn[standard]==0.35.0
 python-multipart==0.0.20
+pydantic==2.11.9
 pydantic-settings==2.2.1
 aiofiles==25.1.0
 filetype==1.2.0
 
 ultralytics==8.4.177
+pillow==10.4.0
 gTTS==2.5.4
 
+httpx==0.28.1
 requests==2.34.2
